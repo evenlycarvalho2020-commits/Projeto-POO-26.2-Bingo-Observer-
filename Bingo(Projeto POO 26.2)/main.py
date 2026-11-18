@@ -37,17 +37,17 @@ class Urna(FonteNumeros):
 
 
 class Sorteio():
-    def __init__(self, max: int = 100):
-        self.observador:list[Observer] = []
-        self.balls = list(range(1, max + 1))
-        random.shuffle(self.balls)
+    class Sorteio:
+    def __init__(self, fonte: FonteNumeros):
+        self.observador: list[Observer] = []
+        self.fonte = fonte
         self.sorteados: list[int] = []
 
-    def adicionar(self, observer:Observer) -> None:
+    def adicionar(self, observer: Observer) -> None:
         if observer not in self.observador:
             self.observador.append(observer)
 
-    def remover(self, observer:Observer) -> None:
+    def remover(self, observer: Observer) -> None:
         if observer in self.observador:
             self.observador.remove(observer)
 
@@ -55,13 +55,15 @@ class Sorteio():
         resultados = (obs.update(number) for obs in list(self.observador))
         return [r for r in resultados if r is not None]
 
-   def sortear(self) -> Rodada | None:
-    if not self.balls:
-        return None
-    number = self.balls.pop()
-    self.sorteados.append(number)
-    marcacoes = self.notificar(number)
-    return Rodada(number, marcacoes)
+    def sortear(self) -> Rodada | None:
+        number = self.fonte.sortear_numero()
+
+        if number is None:
+            return None
+
+        self.sorteados.append(number)
+        marcacoes = self.notificar(number)
+        return Rodada(number, marcacoes)
 
 
 class Jogador(Observer):
@@ -82,7 +84,8 @@ class Jogador(Observer):
 
 
 def jogar() -> None:
-    sorteador = Sorteio(max=75)
+    urna = Urna(max=75)
+    sorteador = Sorteio(urna)
     jogadores = [Jogador("Arlindo Lúcio da Silva"), Jogador("Maria da Costa Gonçalves"), Jogador("Geraldo Rodrigues de Souza")]
 
     for j in jogadores:
