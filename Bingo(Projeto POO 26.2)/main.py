@@ -39,13 +39,13 @@ class Sorteio():
         resultados = (obs.update(number) for obs in list(self.observador))
         return [r for r in resultados if r is not None]
 
-    def sortear(self) -> Rodada | None:
-        if not self.balls:
-            return None
-        number = self.balls.pop()
-        self.sorteados.append(number)
-        self.notificar(number)
-        return Rodada(number, self.notificar(number))
+   def sortear(self) -> Rodada | None:
+    if not self.balls:
+        return None
+    number = self.balls.pop()
+    self.sorteados.append(number)
+    marcacoes = self.notificar(number)
+    return Rodada(number, marcacoes)
 
 
 class Jogador(Observer):
@@ -66,7 +66,7 @@ class Jogador(Observer):
 
 
 def jogar() -> None:
-    sorteador = Sorteio()
+    sorteador = Sorteio(max=75)
     jogadores = [Jogador("Arlindo Lúcio da Silva"), Jogador("Maria da Costa Gonçalves"), Jogador("Geraldo Rodrigues de Souza")]
 
     for j in jogadores:
