@@ -3,13 +3,13 @@ import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
-@dataclass
+@dataclass(frozen=True)
 class Marcacao:
     jogador: str
     numero: int
     faltam: int
 
-@dataclass
+@dataclass(frozen=True)
 class Rodada:
     numero: int
     marcacoes: list[Marcacao]
@@ -68,9 +68,15 @@ class Sorteio():
 
 class Jogador(Observer):
     def __init__(self, name: str, qtd_numbers: int = 10, max: int = 75):
-        self.name = name
-        self.cartela = set(random.sample(range(1, max + 1), qtd_numbers))
-        self.marcados: set[int] = set()
+    if max < 1:
+        raise ValueError("O número máximo deve ser positivo.")
+
+    if not 1 <= qtd_numbers <= max:
+        raise ValueError("Quantidade de números inválida.")
+
+    self.name = name
+    self.cartela = set(random.sample(range(1, max + 1), qtd_numbers))
+    self.marcados: set[int] = set()
 
     @property
     def venceu(self) -> bool:
