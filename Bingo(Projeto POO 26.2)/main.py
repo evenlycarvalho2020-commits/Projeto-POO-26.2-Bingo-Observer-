@@ -82,42 +82,94 @@ class Jogador(Observer):
             faltam = len(self.cartela) - len(self.marcados)
             return Marcacao(self.name, number, faltam)
 
+class Apresentador(ABC):
 
-def jogar() -> None:
-    urna = Urna(max=75)
-    sorteador = Sorteio(urna)
-    jogadores = [Jogador("Arlindo Lúcio da Silva"), Jogador("Maria da Costa Gonçalves"), Jogador("Geraldo Rodrigues de Souza")]
+    @abstractmethod
+    def mostrar_inicio(self) -> None:
+        pass
 
-    for j in jogadores:
-        sorteador.adicionar(j)
+    @abstractmethod
+    def mostrar_cartelas(self, jogadores: list[Jogador]) -> None:
+        pass
 
-    for c in "Bingo: ":
-        print(c, end='', flush=True)
-        time.sleep(0.2)
-    print()
-    time.sleep(1)
+    @abstractmethod
+    def mostrar_rodada(self, rodada: Rodada) -> None:
+        pass
 
-    print("Cartelas dos jogadores: ")
-    time.sleep(1)
-    for j in jogadores:
-        print(f"Cartela de {j.name}: {sorted(j.cartela)}")
+    @abstractmethod
+    def mostrar_vencedores(self, vencedores: list[Jogador]) -> None:
+        pass
+
+    @abstractmethod
+    def mostrar_fim(self) -> None:
+        pass
+
+
+class ApresentadorConsole(Apresentador):
+
+    def mostrar_inicio(self) -> None:
+        for c in "Bingo: ":
+            print(c, end='', flush=True)
+            time.sleep(0.2)
+        print()
         time.sleep(1)
 
-    while True:
-        rodada = sorteador.sortear()
-        if rodada is None:
-            print("Acabaram as bolas!")
-            break
+    def mostrar_cartelas(self, jogadores: list[Jogador]) -> None:
+        print("Cartelas dos jogadores:")
+        time.sleep(1)
 
-        print(f"\nNumero sorteado: {rodada.numero}")
+        for j in jogadores:
+            print(f"Cartela de {j.name}: {sorted(j.cartela)}")
+            time.sleep(1)
+
+    def mostrar_rodada(self, rodada: Rodada) -> None:
+        print(f"\\nNumero sorteado: {rodada.numero}")
         time.sleep(2)
+
         for m in rodada.marcacoes:
             print(f"{m.jogador} marcou {m.numero} faltam {m.faltam}")
             time.sleep(2)
 
+    def mostrar_vencedores(self, vencedores: list[Jogador]) -> None:
+        print(
+            "\\nBINGO! Vencedor(es):",
+            ", ".join(j.name for j in vencedores)
+        )
+
+    def mostrar_fim(self) -> None:
+        print("Acabaram as bolas!")
+        
+def jogar() -> None:
+    urna = Urna(max=75)
+    sorteador = Sorteio(urna)
+
+    jogadores = [
+        Jogador("Arlindo Lúcio da Silva", max=75),
+        Jogador("Maria da Costa Gonçalves", max=75),
+        Jogador("Geraldo Rodrigues de Souza", max=75)
+    ]
+
+    for j in jogadores:
+        sorteador.adicionar(j)
+
+    apresentador = ApresentadorConsole()
+
+    apresentador.mostrar_inicio()
+    apresentador.mostrar_cartelas(jogadores)
+
+    while True:
+        rodada = sorteador.sortear()
+
+        if rodada is None:
+            apresentador.mostrar_fim()
+            break
+
+        apresentador.mostrar_rodada(rodada)
+
         vencedores = [j for j in jogadores if j.venceu]
+
         if vencedores:
-            print("\nBINGO! Vencedor(es):", ", ".join(j.name for j in vencedores))
+            apresentador.mostrar_vencedores(vencedores)
             break
 
 
