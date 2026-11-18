@@ -19,6 +19,22 @@ class Observer(ABC):
    def update(self, number: int) -> Marcacao | None:
        pass
 
+class FonteNumeros(ABC):
+    @abstractmethod
+    def sortear_numero(self) -> int | None:
+        pass
+
+
+class Urna(FonteNumeros):
+    def __init__(self, max: int = 75):
+        self.balls = list(range(1, max + 1))
+        random.shuffle(self.balls)
+
+    def sortear_numero(self) -> int | None:
+        if not self.balls:
+            return None
+        return self.balls.pop()
+
 
 class Sorteio():
     def __init__(self, max: int = 100):
